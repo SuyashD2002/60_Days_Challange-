@@ -5,12 +5,6 @@ A 60-day vacation sprint dashboard tracking my skill development in C++, ROS 2, 
 A custom interactive dashboard tracking my **60-Day Skill-Building Sprint** during my semester break as a Master of Science in Mechatronics student. 
 
 This challenge is designed to push my practical engineering capabilities to an industry-ready level before the next semester starts.
-
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
-![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=flat&logo=chartdotjs&logoColor=white)
-
 ---
 
 ## 🎯 The 60-Day Vacation Sprint
