@@ -37,4 +37,4 @@ I built this dashboard to keep myself accountable every single day of the challe
 - **Local Access:** Clone the repository and open `index.html` in any web browser.
 
 ```bash
-git clone [https://github.com/](https://github.com/)SuyashD2002/Robotics-Engineer-60-Day-Challenge.git
+git clone https://github.com/SuyashD2002/Robotics-Engineer-60-Day-Challenge.git
