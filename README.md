@@ -33,7 +33,7 @@ I built this dashboard to keep myself accountable every single day of the challe
 
 ## 🛠️ How to View
 
-- **Live Dashboard:** [View My Hosted Tracker Here]( https://github.com/SuyashD2002/Robotics-Engineer-60-Day-Challenge/)
+- **Live Dashboard:** [View My Hosted Tracker Here](https://suyashd2002.github.io/60_Days_Challange-/)
 
 ```bash
-git clone https://github.com/SuyashD2002/Robotics-Engineer-60-Day-Challenge.git
+git clone https://suyashd2002.github.io/60_Days_Challange.git
