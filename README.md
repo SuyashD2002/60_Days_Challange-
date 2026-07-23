@@ -33,7 +33,7 @@ I built this dashboard to keep myself accountable every single day of the challe
 
 ## 🛠️ How to View
 
-**Live Dashboard:** [View My Hosted Tracker Here](https://suyashd2002.github.io/60_Days_Challange/)
+**Live Dashboard:** [View My Hosted Tracker Here](https://suyashd2002.github.io/60_Days_Challange-/)
 
 ```bash
 git clone https://github.com/SuyashD2002/60_Days_Challange.git
