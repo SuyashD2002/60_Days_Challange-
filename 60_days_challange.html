@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>60-Day Challenge Dashboard</title>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Canvas Confetti for Achievements -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-card-hover: rgba(51, 65, 85, 0.8);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-purple: #c084fc;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f1f5f9;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-hover: rgba(241, 245, 249, 1);
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --accent-color: #0284c7;
+            --accent-green: #16a34a;
+            --accent-purple: #9333ea;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 32px;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent-color);
+            color: #fff;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 32px;
+            max-width: 1200px;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .user-stats-pill {
+            display: flex;
+            gap: 20px;
+            background: var(--bg-card);
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .pill-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pill-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pill-value {
+            font-weight: bold;
+            color: var(--accent-color);
+            font-size: 1rem;
+        }
+
+        /* Glassmorphic Cards */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin: 16px 0 8px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-purple));
+            transition: width 0.4s ease;
+        }
+
+        /* Checklists */
+        .task-checklist {
+            list-style: none;
+            margin-top: 12px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--accent-color);
+        }
+
+        /* Grid for 60 Days */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .day-chip {
+            padding: 14px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .day-chip:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .day-chip.active-day {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .day-chip.completed {
+            background: var(--accent-green);
+            color: #000;
+            font-weight: bold;
+            border-color: var(--accent-green);
+        }
+
+        /* Skills Radar / Sliders */
+        .skill-control {
+            margin-bottom: 16px;
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .skill-slider {
+            width: 100%;
+            accent-color: var(--accent-color);
+        }
+
+        /* Textarea / Journal */
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            resize: vertical;
+            margin-top: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .theme-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .app-container { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main-content { margin-left: 0; }
+            .days-grid { grid-template-columns: repeat(5, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div>
+                <div class="brand">
+                    <span style="font-size: 1.5rem;">🤖</span>
+                    <span>RoboTracker 60</span>
+                </div>
+                <nav class="nav-menu">
+                    <button class="nav-btn active" data-tab="dashboard">📊 Dashboard</button>
+                    <button class="nav-btn" data-tab="planner">📅 60-Day Planner</button>
+                    <button class="nav-btn" data-tab="skills">⚡ Skill Tree</button>
+                    <button class="nav-btn" data-tab="reports">📝 LinkedIn Post Generator</button>
+                </nav>
+            </div>
+            <div class="theme-toggle-container">
+                <button id="theme-toggle" class="theme-btn">🌙 Dark Mode</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="top-header">
+                <div>
+                    <h1 id="header-day-title">Day 1 / 60</h1>
+                    <p class="subtitle">Robotics & Mechatronics Industry Sprint</p>
+                </div>
+                <div class="user-stats-pill">
+                    <div class="pill-item">
+                        <span class="pill-label">Rank</span>
+                        <span id="user-title" class="pill-value">Student</span>
+                    </div>
+                    <div class="pill-item">
+                        <span class="pill-label">Level</span>
+                        <span id="user-level" class="pill-value">Lvl 1</span>
+                    </div>
+                    <div class="pill-item">
+                        <span class="pill-label">Total XP</span>
+                        <span id="user-xp" class="pill-value">0</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD -->
+            <section id="tab-dashboard" class="tab-content active">
+                <div class="grid-3">
+                    <div class="card">
+                        <h3>Overall Challenge Completion</h3>
+                        <div class="progress-bar-container">
+                            <div id="overall-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <p id="overall-progress-text" class="subtitle">0% (0 / 60 Days Completed)</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Study Analytics</h3>
+                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">
+                            <div>
+                                <h2 id="total-hours-display" style="color: var(--accent-color);">0 hrs</h2>
+                                <span class="subtitle">Logged Focus Time</span>
+                            </div>
+                            <div>
+                                <h2 id="german-words-display" style="color: var(--accent-purple);">0</h2>
+                                <span class="subtitle">German Words</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Current Target</h3>
+                        <p id="current-week-focus" style="margin-top: 8px; font-weight: 500;">Week 1: C++ Basics & ROS2 Foundations</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Focus Skills Breakdown</h3>
+                    <div style="max-height: 250px; position: relative;">
+                        <canvas id="skillsChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: 60-DAY PLANNER -->
+            <section id="tab-planner" class="tab-content">
+                <div class="card">
+                    <h3>Select Day</h3>
+                    <div id="days-grid" class="days-grid">
+                        <!-- 60 Day chips populated dynamically -->
+                    </div>
+                </div>
+
+                <div class="grid-3">
+                    <div class="card" style="grid-column: span 2;">
+                        <h3 id="active-day-heading">Day 1 Checklists</h3>
+                        <ul id="day-task-list" class="task-checklist">
+                            <!-- Tasks populated dynamically -->
+                        </ul>
+                        
+                        <div style="margin-top: 20px;">
+                            <label class="subtitle">Daily Notes & Log</label>
+                            <textarea id="daily-journal-input" placeholder="Record what you learned or debugging steps taken..."></textarea>
+                            <button id="save-journal-btn" class="btn">Save Daily Log</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Time & Vocab Tracking</h3>
+                        <div style="margin-top: 12px;">
+                            <label class="subtitle">Hours Studied Today</label>
+                            <input type="number" id="input-daily-hours" value="0" min="0" max="16" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <label class="subtitle">New German Words Learned</label>
+                            <input type="number" id="input-daily-german" value="0" min="0" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                        </div>
+                        <button id="save-metrics-btn" class="btn" style="width: 100%;">Update Today's Stats</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: SKILL TREE -->
+            <section id="tab-skills" class="tab-content">
+                <div class="card">
+                    <h3>Competency & Skill Levels (Self-Assessment)</h3>
+                    <p class="subtitle" style="margin-bottom: 20px;">Adjust sliders as you acquire expertise throughout the 60 days.</p>
+                    
+                    <div class="skill-control">
+                        <div class="skill-header"><span>C++ Programming</span><span id="val-cpp">30%</span></div>
+                        <input type="range" class="skill-slider" data-skill="cpp" value="30">
+                    </div>
+                    <div class="skill-control">
+                        <div class="skill-header"><span>ROS 2 Architecture</span><span id="val-ros2">20%</span></div>
+                        <input type="range" class="skill-slider" data-skill="ros2" value="20">
+                    </div>
+                    <div class="skill-control">
+                        <div class="skill-header"><span>MATLAB & Simulink</span><span id="val-matlab">25%</span></div>
+                        <input type="range" class="skill-slider" data-skill="matlab" value="25">
+                    </div>
+                    <div class="skill-control">
+                        <div class="skill-header"><span>Control Systems (PID / MPC)</span><span id="val-control">20%</span></div>
+                        <input type="range" class="skill-slider" data-skill="control" value="20">
+                    </div>
+                    <div class="skill-control">
+                        <div class="skill-header"><span>German Language (A1-B1)</span><span id="val-german">35%</span></div>
+                        <input type="range" class="skill-slider" data-skill="german" value="35">
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: LINKEDIN GENERATOR -->
+            <section id="tab-reports" class="tab-content">
+                <div class="card">
+                    <h3>LinkedIn Update Post Generator</h3>
+                    <p class="subtitle" style="margin-bottom: 16px;">Generates a ready-to-post milestone draft based on your completed metrics.</p>
+                    
+                    <button id="generate-post-btn" class="btn">Generate LinkedIn Update</button>
+                    
+                    <textarea id="linkedin-post-output" style="height: 220px; margin-top: 16px;" readonly></textarea>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Application Script Engine -->
+    <script>
+        // Default App Schema
+        const DEFAULT_STATE = {
+            selectedDay: 1,
+            completedDays: [],
+            journal: {},
+            hoursLogged: {},
+            germanWordsLogged: {},
+            skills: { cpp: 30, ros2: 20, matlab: 25, control: 20, german: 35 },
+            theme: 'dark'
+        };
+
+        const RANGES = [
+            { level: 1, title: 'Student', xpNeeded: 0 },
+            { level: 5, title: 'Junior Developer', xpNeeded: 500 },
+            { level: 15, title: 'Robotics Engineer', xpNeeded: 1500 },
+            { level: 30, title: 'System Architect', xpNeeded: 3000 },
+            { level: 50, title: 'Robotics Master', xpNeeded: 5000 }
+        ];
+
+        class AppStore {
+            static get() {
+                const data = localStorage.getItem('robo_60_dashboard_db');
+                return data ? JSON.parse(data) : DEFAULT_STATE;
+            }
+            static save(data) {
+                localStorage.setItem('robo_60_dashboard_db', JSON.stringify(data));
+            }
+        }
+
+        let state = AppStore.get();
+        let chartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initUI();
+            renderChart();
+            updateApp();
+        });
+
+        function initUI() {
+            // Theme setup
+            document.documentElement.setAttribute('data-theme', state.theme);
+            const themeBtn = document.getElementById('theme-toggle');
+            themeBtn.innerText = state.theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode';
+            themeBtn.addEventListener('click', () => {
+                state.theme = state.theme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', state.theme);
+                themeBtn.innerText = state.theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode';
+                AppStore.save(state);
+            });
+
+            // Tabs Switcher
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+                });
+            });
+
+            // Populate Days Grid
+            const daysGrid = document.getElementById('days-grid');
+            daysGrid.innerHTML = '';
+            for (let i = 1; i <= 60; i++) {
+                const chip = document.createElement('div');
+                chip.className = `day-chip ${state.completedDays.includes(i) ? 'completed' : ''}`;
+                chip.innerText = `D${i}`;
+                chip.addEventListener('click', () => {
+                    state.selectedDay = i;
+                    updateApp();
+                });
+                daysGrid.appendChild(chip);
+            }
+
+            // Skills Sliders Binding
+            document.querySelectorAll('.skill-slider').forEach(slider => {
+                const skill = slider.dataset.skill;
+                slider.value = state.skills[skill] || 0;
+                document.getElementById(`val-${skill}`).innerText = `${slider.value}%`;
+                
+                slider.addEventListener('input', (e) => {
+                    state.skills[skill] = parseInt(e.target.value);
+                    document.getElementById(`val-${skill}`).innerText = `${e.target.value}%`;
+                    AppStore.save(state);
+                    renderChart();
+                });
+            });
+
+            // Metrics inputs
+            document.getElementById('save-metrics-btn').addEventListener('click', () => {
+                const hrs = parseFloat(document.getElementById('input-daily-hours').value) || 0;
+                const words = parseInt(document.getElementById('input-daily-german').value) || 0;
+                state.hoursLogged[state.selectedDay] = hrs;
+                state.germanWordsLogged[state.selectedDay] = words;
+                AppStore.save(state);
+                updateApp();
+            });
+
+            // Journal Input
+            document.getElementById('save-journal-btn').addEventListener('click', () => {
+                const text = document.getElementById('daily-journal-input').value;
+                state.journal[state.selectedDay] = text;
+                AppStore.save(state);
+            });
+
+            // LinkedIn Generator
+            document.getElementById('generate-post-btn').addEventListener('click', generateLinkedInPost);
+        }
+
+        function updateApp() {
+            // Header stats
+            const totalCompleted = state.completedDays.length;
+            const xp = totalCompleted * 50;
+            
+            // Calculate Title and Level
+            let title = 'Student';
+            let lvl = Math.floor(xp / 100) + 1;
+            for (let r of RANGES) {
+                if (xp >= r.xpNeeded) title = r.title;
+            }
+
+            document.getElementById('user-xp').innerText = xp;
+            document.getElementById('user-level').innerText = `Lvl ${lvl}`;
+            document.getElementById('user-title').innerText = title;
+            document.getElementById('header-day-title').innerText = `Day ${state.selectedDay} / 60`;
+
+            // Progress Bar
+            const percent = Math.round((totalCompleted / 60) * 100);
+            document.getElementById('overall-progress-fill').style.width = `${percent}%`;
+            document.getElementById('overall-progress-text').innerText = `${percent}% (${totalCompleted} / 60 Days Completed)`;
+
+            // Total Hours and Words
+            const totalHours = Object.values(state.hoursLogged).reduce((a, b) => a + b, 0);
+            const totalWords = Object.values(state.germanWordsLogged).reduce((a, b) => a + b, 0);
+            document.getElementById('total-hours-display').innerText = `${totalHours} hrs`;
+            document.getElementById('german-words-display').innerText = totalWords;
+
+            // Highlight Active Day in Grid
+            const chips = document.querySelectorAll('.day-chip');
+            chips.forEach((chip, index) => {
+                const dayNum = index + 1;
+                chip.classList.toggle('active-day', dayNum === state.selectedDay);
+                chip.classList.toggle('completed', state.completedDays.includes(dayNum));
+            });
+
+            // Load Task List & Values for Active Day
+            document.getElementById('active-day-heading').innerText = `Day ${state.selectedDay} Tasks`;
+            document.getElementById('daily-journal-input').value = state.journal[state.selectedDay] || '';
+            document.getElementById('input-daily-hours').value = state.hoursLogged[state.selectedDay] || 0;
+            document.getElementById('input-daily-german').value = state.germanWordsLogged[state.selectedDay] || 0;
+
+            renderDayChecklist(state.selectedDay);
+            AppStore.save(state);
+        }
+
+        function renderDayChecklist(dayNum) {
+            const taskContainer = document.getElementById('day-task-list');
+            taskContainer.innerHTML = '';
+
+            const defaultTasks = [
+                "🇩🇪 2 Hours German (Grammar / Vocab / Speaking)",
+                "💻 C++ Practice (LeetCode / Modern Syntax)",
+                "🤖 Main Block: ROS 2 Architecture or MATLAB/Simulink",
+                "📝 Implementation Practice / Journal Update"
+            ];
+
+            const isDayCompleted = state.completedDays.includes(dayNum);
+
+            defaultTasks.forEach((taskText, idx) => {
+                const li = document.createElement('li');
+                li.className = 'task-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = isDayCompleted;
+                
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        if (!state.completedDays.includes(dayNum)) state.completedDays.push(dayNum);
+                        if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 50 });
+                    } else {
+                        state.completedDays = state.completedDays.filter(d => d !== dayNum);
+                    }
+                    updateApp();
+                });
+
+                const label = document.createElement('span');
+                label.innerText = taskText;
+
+                li.appendChild(checkbox);
+                li.appendChild(label);
+                taskContainer.appendChild(li);
+            });
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('skillsChart').getContext('2d');
+            const data = [
+                state.skills.cpp,
+                state.skills.ros2,
+                state.skills.matlab,
+                state.skills.control,
+                state.skills.german
+            ];
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['C++', 'ROS 2', 'MATLAB/Simulink', 'Control Theory', 'German'],
+                    datasets: [{
+                        label: 'Skill Proficiency (%)',
+                        data: data,
+                        backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                        borderColor: '#38bdf8',
+                        pointBackgroundColor: '#38bdf8'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: '#94a3b8' },
+                            ticks: { display: false, max: 100 }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function generateLinkedInPost() {
+            const totalHours = Object.values(state.hoursLogged).reduce((a, b) => a + b, 0);
+            const totalWords = Object.values(state.germanWordsLogged).reduce((a, b) => a + b, 0);
+            const daysDone = state.completedDays.length;
+
+            const postText = `🚀 Milestone Update: 60-Day Robotics & Mechatronics Challenge\n\n` +
+                `I am currently pushing through an intensive 60-day sprint toward becoming an industry-ready Robotics Engineer in Germany! 🇩🇪🤖\n\n` +
+                `📊 Progress Summary So Far:\n` +
+                `• Completed: ${daysDone} / 60 Days (${Math.round((daysDone/60)*100)}% complete)\n` +
+                `• Total Focused Hours: ${totalHours} hrs\n` +
+                `• German Vocabulary Acquired: ${totalWords} words\n` +
+                `• Primary Focus: C++, ROS 2, MATLAB/Simulink & Control Systems\n\n` +
+                `Building consistency every day and applying concepts directly into hands-on simulation projects.\n\n` +
+                `#Robotics #ROS2 #MATLAB #Simulink #Cpp #Mechatronics #Engineering #Automation #Germany`;
+
+            document.getElementById('linkedin-post-output').value = postText;
+        }
+    </script>
+</body>
+</html>
