@@ -14,7 +14,7 @@ Instead of taking time off during the 2-month university break, I committed to a
 ### 🚀 Daily Focus & Core Stack
 - **C++:** Modern syntax, OOP, STL, memory management, and data structures.
 - **ROS 2:** Robot architecture, publisher/subscriber nodes, services, TF2, URDF, and navigation.
-- **MATLAB & Simulink:** Control systems design, Stateflow, PID tuning, and physical modeling.
+- **MATLAB & Simulink:** Control systems design, Stateflow, Controller tuning, and physical modeling.
 - **German Language:** Daily vocabulary, grammar, and speaking practice (aiming for conversational fluency).
 
 ---
