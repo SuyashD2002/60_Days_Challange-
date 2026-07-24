@@ -1,747 +1,628 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>60-Day Challenge Dashboard</title>
-    <!-- Chart.js for Analytics -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Canvas Confetti for Achievements -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <style>
-        :root {
-            --bg-primary: #0f172a;
-            --bg-card: rgba(30, 41, 59, 0.7);
-            --bg-card-hover: rgba(51, 65, 85, 0.8);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-color: #38bdf8;
-            --accent-green: #4ade80;
-            --accent-purple: #c084fc;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoboTracker 60</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        [data-theme="light"] {
-            --bg-primary: #f1f5f9;
-            --bg-card: rgba(255, 255, 255, 0.85);
-            --bg-card-hover: rgba(241, 245, 249, 1);
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --accent-color: #0284c7;
-            --accent-green: #16a34a;
-            --accent-purple: #9333ea;
-            --border-color: rgba(0, 0, 0, 0.1);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-        }
+    :root {
+      --bg: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card2: #263044;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-dark: #0284c7;
+      --accent-bg: rgba(56,189,248,0.12);
+      --success: #4ade80;
+      --success-bg: rgba(74,222,128,0.12);
+      --warning: #fbbf24;
+      --warning-bg: rgba(251,191,36,0.12);
+      --pro: #c084fc;
+      --pro-bg: rgba(192,132,252,0.12);
+      --border: rgba(255,255,255,0.08);
+      --radius: 8px;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            transition: background-color 0.3s ease;
-        }
+    /* ── Layout ── */
+    .app { display: flex; min-height: 100vh; }
 
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 14px;
+      gap: 4px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
 
-        /* Sidebar Navigation */
-        .sidebar {
-            width: 260px;
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border-right: 1px solid var(--border-color);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: fixed;
-            height: 100vh;
-            z-index: 10;
-        }
+    .brand {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      padding: 6px 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 32px;
-        }
+    .brand-icon { font-size: 22px; }
 
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+    .nav-btn {
+      background: none;
+      border: none;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      text-align: left;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s, color 0.15s;
+    }
 
-        .nav-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            padding: 12px 16px;
-            border-radius: 8px;
-            text-align: left;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
+    .nav-btn:hover { background: var(--bg-card2); color: var(--text); }
 
-        .nav-btn:hover, .nav-btn.active {
-            background: var(--accent-color);
-            color: #fff;
-        }
+    .nav-btn.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-weight: 600;
+    }
 
-        /* Main Content */
-        .main-content {
-            margin-left: 260px;
-            flex: 1;
-            padding: 32px;
-            max-width: 1200px;
-        }
+    .main {
+      flex: 1;
+      padding: 28px 28px 48px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      max-width: 960px;
+    }
 
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
+    /* ── Header ── */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
 
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 4px;
-        }
+    .page-title { font-size: 20px; font-weight: 600; }
+    .page-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
 
-        .user-stats-pill {
-            display: flex;
-            gap: 20px;
-            background: var(--bg-card);
-            padding: 10px 24px;
-            border-radius: 50px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--glass-shadow);
-        }
+    .pills {
+      display: flex;
+      gap: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 20px;
+    }
 
-        .pill-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    .pill { display: flex; flex-direction: column; align-items: center; }
+    .pill-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; }
+    .pill-val { font-size: 14px; font-weight: 600; color: var(--accent); }
 
-        .pill-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
 
-        .pill-value {
-            font-weight: bold;
-            color: var(--accent-color);
-            font-size: 1rem;
-        }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
 
-        /* Glassmorphic Cards */
-        .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: var(--glass-shadow);
-            margin-bottom: 20px;
-        }
+    .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
 
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
+    /* ── Progress bar ── */
+    .bar-bg {
+      height: 8px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 10px 0 6px;
+    }
 
-        .tab-content {
-            display: none;
-        }
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
 
-        .tab-content.active {
-            display: block;
-        }
+    /* ── Tabs ── */
+    .tab { display: none; flex-direction: column; gap: 16px; }
+    .tab.active { display: flex; }
 
-        /* Progress Bar */
-        .progress-bar-container {
-            width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            margin: 16px 0 8px 0;
-            overflow: hidden;
-        }
+    /* ── Day grid ── */
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 7px;
+    }
 
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-color), var(--accent-purple));
-            transition: width 0.4s ease;
-        }
+    .day-chip {
+      padding: 9px 4px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
 
-        /* Checklists */
-        .task-checklist {
-            list-style: none;
-            margin-top: 12px;
-        }
+    .day-chip:hover { border-color: var(--accent); color: var(--accent); }
 
-        .task-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
+    .day-chip.selected {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-weight: 600;
+    }
 
-        .task-item:last-child {
-            border-bottom: none;
-        }
+    .day-chip.done {
+      background: var(--success-bg);
+      border-color: rgba(74,222,128,0.4);
+      color: var(--success);
+      font-weight: 600;
+    }
 
-        .task-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: var(--accent-color);
-        }
+    .day-chip.done.selected {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
 
-        /* Grid for 60 Days */
-        .days-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 10px;
-            margin-top: 16px;
-        }
+    /* ── Task list ── */
+    .task-list { list-style: none; }
 
-        .day-chip {
-            padding: 14px 8px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            cursor: pointer;
-            text-align: center;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text);
+      transition: color 0.15s;
+    }
 
-        .day-chip:hover {
-            background: var(--bg-card-hover);
-        }
+    .task-item:last-child { border-bottom: none; }
 
-        .day-chip.active-day {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-        }
+    .task-item.done { color: var(--text-muted); text-decoration: line-through; }
 
-        .day-chip.completed {
-            background: var(--accent-green);
-            color: #000;
-            font-weight: bold;
-            border-color: var(--accent-green);
-        }
+    .task-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+    }
 
-        /* Skills Radar / Sliders */
-        .skill-control {
-            margin-bottom: 16px;
-        }
+    /* ── Planner grid ── */
+    .planner-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+      gap: 14px;
+    }
 
-        .skill-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 0.9rem;
-        }
+    /* ── Inputs ── */
+    textarea, input[type="number"] {
+      width: 100%;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
 
-        .skill-slider {
-            width: 100%;
-            accent-color: var(--accent-color);
-        }
+    textarea { resize: vertical; line-height: 1.5; }
+    textarea:focus, input[type="number"]:focus { border-color: var(--accent); }
+    input[type="number"] { margin-top: 6px; }
 
-        /* Textarea / Journal */
-        textarea {
-            width: 100%;
-            height: 100px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            color: var(--text-primary);
-            resize: vertical;
-            margin-top: 8px;
-        }
+    /* ── Buttons ── */
+    .btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 9px 18px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 10px;
+      display: inline-block;
+    }
 
-        /* Buttons */
-        .btn {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s ease;
-            display: inline-block;
-            margin-top: 10px;
-        }
+    .btn:hover { background: #7dd3fc; }
+    .btn-full { width: 100%; text-align: center; }
 
-        .btn:hover {
-            background: var(--accent-hover);
-        }
+    /* ── Badges ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 50px;
+    }
 
-        .theme-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 10px;
-            border-radius: 8px;
-            width: 100%;
-            cursor: pointer;
-        }
+    .badge-warning { background: var(--warning-bg); color: var(--warning); }
+    .badge-pro { background: var(--pro-bg); color: var(--pro); }
 
-        /* Responsive */
-        @media (max-width: 900px) {
-            .app-container { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; }
-            .main-content { margin-left: 0; }
-            .days-grid { grid-template-columns: repeat(5, 1fr); }
-        }
-    </style>
+    /* ── Stat numbers ── */
+    .stat-num { font-size: 26px; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .app { flex-direction: column; }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 12px;
+        gap: 6px;
+      }
+
+      .brand { width: 100%; padding-bottom: 8px; }
+
+      .nav-btn { width: auto; flex: 1; justify-content: center; min-width: 120px; }
+
+      .main { padding: 16px; }
+
+      .days-grid { grid-template-columns: repeat(6, 1fr); }
+
+      .planner-grid { grid-template-columns: 1fr; }
+
+      .pills { gap: 10px; padding: 8px 14px; }
+    }
+
+    @media (max-width: 480px) {
+      .days-grid { grid-template-columns: repeat(5, 1fr); }
+      .pills { flex-wrap: wrap; border-radius: 12px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div>
-                <div class="brand">
-                    <span style="font-size: 1.5rem;">🤖</span>
-                    <span>RoboTracker 60</span>
-                </div>
-                <nav class="nav-menu">
-                    <button class="nav-btn active" data-tab="dashboard">📊 Dashboard</button>
-                    <button class="nav-btn" data-tab="planner">📅 60-Day Planner</button>
-                    <button class="nav-btn" data-tab="skills">⚡ Skill Tree</button>
-                    <button class="nav-btn" data-tab="reports">📝 LinkedIn Post Generator</button>
-                </nav>
-            </div>
-            <div class="theme-toggle-container">
-                <button id="theme-toggle" class="theme-btn">🌙 Dark Mode</button>
-            </div>
-        </aside>
 
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <!-- Header Bar -->
-            <header class="top-header">
-                <div>
-                    <h1 id="header-day-title">Day 1 / 60</h1>
-                    <p class="subtitle">Robotics & Mechatronics Industry Sprint</p>
-                </div>
-                <div class="user-stats-pill">
-                    <div class="pill-item">
-                        <span class="pill-label">Rank</span>
-                        <span id="user-title" class="pill-value">Master Student</span>
-                    </div>
-                    <div class="pill-item">
-                        <span class="pill-label">Level</span>
-                        <span id="user-level" class="pill-value">Lvl 1</span>
-                    </div>
-                    <div class="pill-item">
-                        <span class="pill-label">Total XP</span>
-                        <span id="user-xp" class="pill-value">0</span>
-                    </div>
-                </div>
-            </header>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">🤖</span>
+      RoboTracker 60
+    </div>
+    <button class="nav-btn active" data-tab="dashboard">📊 Dashboard</button>
+    <button class="nav-btn" data-tab="planner">📅 60-Day Planner</button>
+  </aside>
 
-            <!-- TAB 1: DASHBOARD -->
-            <section id="tab-dashboard" class="tab-content active">
-                <div class="grid-3">
-                    <div class="card">
-                        <h3>Overall Challenge Completion</h3>
-                        <div class="progress-bar-container">
-                            <div id="overall-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
-                        </div>
-                        <p id="overall-progress-text" class="subtitle">0% (0 / 60 Days Completed)</p>
-                    </div>
+  <!-- Main Content -->
+  <main class="main">
 
-                    <div class="card">
-                        <h3>Study Analytics</h3>
-                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">
-                            <div>
-                                <h2 id="total-hours-display" style="color: var(--accent-color);">0 hrs</h2>
-                                <span class="subtitle">Logged Focus Time</span>
-                            </div>
-                            <div>
-                                <h2 id="german-words-display" style="color: var(--accent-purple);">0</h2>
-                                <span class="subtitle">German Words</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3>Current Target</h3>
-                        <p id="current-week-focus" style="margin-top: 8px; font-weight: 500;">Week 1: C++ Basics & ROS2 Foundations</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>Focus Skills Breakdown</h3>
-                    <div style="max-height: 250px; position: relative;">
-                        <canvas id="skillsChart"></canvas>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB 2: 60-DAY PLANNER -->
-            <section id="tab-planner" class="tab-content">
-                <div class="card">
-                    <h3>Select Day</h3>
-                    <div id="days-grid" class="days-grid">
-                        <!-- 60 Day chips populated dynamically -->
-                    </div>
-                </div>
-
-                <div class="grid-3">
-                    <div class="card" style="grid-column: span 2;">
-                        <h3 id="active-day-heading">Day 1 Checklists</h3>
-                        <ul id="day-task-list" class="task-checklist">
-                            <!-- Tasks populated dynamically -->
-                        </ul>
-                        
-                        <div style="margin-top: 20px;">
-                            <label class="subtitle">Daily Notes & Log</label>
-                            <textarea id="daily-journal-input" placeholder="Record what you learned or debugging steps taken..."></textarea>
-                            <button id="save-journal-btn" class="btn">Save Daily Log</button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3>Time & Vocab Tracking</h3>
-                        <div style="margin-top: 12px;">
-                            <label class="subtitle">Hours Studied Today</label>
-                            <input type="number" id="input-daily-hours" value="0" min="0" max="16" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
-                        </div>
-                        <div style="margin-top: 16px;">
-                            <label class="subtitle">New German Words Learned</label>
-                            <input type="number" id="input-daily-german" value="0" min="0" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
-                        </div>
-                        <button id="save-metrics-btn" class="btn" style="width: 100%;">Update Today's Stats</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB 3: SKILL TREE -->
-            <section id="tab-skills" class="tab-content">
-                <div class="card">
-                    <h3>Competency & Skill Levels (Self-Assessment)</h3>
-                    <p class="subtitle" style="margin-bottom: 20px;">Adjust sliders as you acquire expertise throughout the 60 days.</p>
-                    
-                    <div class="skill-control">
-                        <div class="skill-header"><span>C++ Programming</span><span id="val-cpp">30%</span></div>
-                        <input type="range" class="skill-slider" data-skill="cpp" value="30">
-                    </div>
-                    <div class="skill-control">
-                        <div class="skill-header"><span>ROS 2 Architecture</span><span id="val-ros2">20%</span></div>
-                        <input type="range" class="skill-slider" data-skill="ros2" value="20">
-                    </div>
-                    <div class="skill-control">
-                        <div class="skill-header"><span>MATLAB & Simulink</span><span id="val-matlab">25%</span></div>
-                        <input type="range" class="skill-slider" data-skill="matlab" value="25">
-                    </div>
-                    <div class="skill-control">
-                        <div class="skill-header"><span>Control Systems</span><span id="val-control">20%</span></div>
-                        <input type="range" class="skill-slider" data-skill="control" value="20">
-                    </div>
-                    <div class="skill-control">
-                        <div class="skill-header"><span>German Language</span><span id="val-german">35%</span></div>
-                        <input type="range" class="skill-slider" data-skill="german" value="35">
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB 4: LINKEDIN GENERATOR -->
-            <section id="tab-reports" class="tab-content">
-                <div class="card">
-                    <h3>LinkedIn Update Post Generator</h3>
-                    <p class="subtitle" style="margin-bottom: 16px;">Generates a ready-to-post milestone draft based on your completed metrics.</p>
-                    
-                    <button id="generate-post-btn" class="btn">Generate LinkedIn Update</button>
-                    
-                    <textarea id="linkedin-post-output" style="height: 220px; margin-top: 16px;" readonly></textarea>
-                </div>
-            </section>
-        </main>
+    <!-- Header -->
+    <div class="top-header">
+      <div>
+        <div class="page-title" id="hdr-day">Day 1 / 60</div>
+        <div class="page-sub">Robotics &amp; Mechatronics Industry Sprint</div>
+      </div>
+      <div class="pills">
+        <div class="pill">
+          <span class="pill-label">Rank</span>
+          <span class="pill-val" id="hdr-rank">Student</span>
+        </div>
+        <div class="pill">
+          <span class="pill-label">Level</span>
+          <span class="pill-val" id="hdr-lvl">Lvl 1</span>
+        </div>
+        <div class="pill">
+          <span class="pill-label">XP</span>
+          <span class="pill-val" id="hdr-xp">0</span>
+        </div>
+        <div class="pill">
+          <span class="pill-label">Streak</span>
+          <span class="pill-val" id="hdr-streak">0 🔥</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Application Script Engine -->
-    <script>
-        // Default App Schema
-        const DEFAULT_STATE = {
-            selectedDay: 1,
-            completedDays: [],
-            journal: {},
-            hoursLogged: {},
-            germanWordsLogged: {},
-            skills: { cpp: 30, ros2: 20, matlab: 25, control: 20, german: 35 },
-            theme: 'dark'
-        };
+    <!-- ── TAB: DASHBOARD ── -->
+    <section class="tab active" id="tab-dashboard">
 
-        const RANGES = [
-            { level: 1, title: 'Student', xpNeeded: 0 },
-            { level: 5, title: 'Junior Developer', xpNeeded: 500 },
-            { level: 15, title: 'Robotics Engineer', xpNeeded: 1500 },
-            { level: 30, title: 'System Architect', xpNeeded: 3000 },
-            { level: 50, title: 'Robotics Master', xpNeeded: 5000 }
-        ];
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">Overall progress</div>
+          <div class="stat-num" id="dash-pct">0%</div>
+          <div class="bar-bg"><div class="bar-fill" id="dash-bar" style="width:0%"></div></div>
+          <div class="stat-label" id="dash-days">0 / 60 days completed</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Study time</div>
+          <div class="stat-num" id="dash-hrs">0 hrs</div>
+          <div class="stat-label">Total focused hours logged</div>
+        </div>
+      </div>
 
-        class AppStore {
-            static get() {
-                const data = localStorage.getItem('robo_60_dashboard_db');
-                return data ? JSON.parse(data) : DEFAULT_STATE;
-            }
-            static save(data) {
-                localStorage.setItem('robo_60_dashboard_db', JSON.stringify(data));
-            }
+      <div class="card">
+        <div class="card-title">Current week focus</div>
+        <span class="badge badge-pro" id="dash-week-badge">Week 1</span>
+        <div style="margin-top:10px; font-size:15px; font-weight:600;" id="dash-week-focus">
+          C++ Basics &amp; ROS 2 Foundations
+        </div>
+        <div style="margin-top:5px; font-size:13px; color:var(--text-muted);" id="dash-week-desc">
+          Focus on modern C++17 syntax, CMake builds, and ROS 2 node communication patterns.
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── TAB: PLANNER ── -->
+    <section class="tab" id="tab-planner">
+
+      <div class="card">
+        <div class="card-title">Select a day</div>
+        <div class="days-grid" id="days-grid"></div>
+      </div>
+
+      <div class="planner-grid">
+
+        <!-- Tasks + Journal -->
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <span class="card-title" id="plan-day-title" style="margin:0;">Day 1 tasks</span>
+            <span class="badge badge-warning" id="plan-streak">0 day streak 🔥</span>
+          </div>
+
+          <ul class="task-list" id="task-list"></ul>
+
+          <div style="margin-top:18px;">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">Daily notes</div>
+            <textarea id="journal-input" rows="4" placeholder="Record what you learned, bugs fixed, breakthroughs..."></textarea>
+            <button class="btn" id="save-journal-btn">Save notes</button>
+          </div>
+        </div>
+
+        <!-- Hours tracker -->
+        <div class="card">
+          <div class="card-title">Hours studied today</div>
+          <input type="number" id="input-hrs" value="0" min="0" max="16" step="0.5" placeholder="e.g. 3">
+          <button class="btn btn-full" id="save-metrics-btn">Update stats</button>
+
+          <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">How day completion works</div>
+            <div style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+              Tick all 4 tasks to mark a day ✅ done. The day chip turns green and you earn <strong style="color:var(--accent);">50 XP</strong>.
+              Complete days back-to-back to build your 🔥 streak.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  /* ── Data ── */
+  const WEEK_PLANS = [
+    { focus: "C++ Basics & ROS 2 Foundations",      desc: "Modern C++17 syntax, CMake builds, and ROS 2 node communication patterns." },
+    { focus: "ROS 2 Navigation & Transforms",        desc: "TF2 frames, nav2 stack, URDF robot modelling, and Gazebo simulation basics." },
+    { focus: "Sensor Fusion & Perception",           desc: "LiDAR pointcloud processing, camera calibration, and sensor_msgs integration." },
+    { focus: "SLAM & Localisation",                  desc: "GMapping, Cartographer, AMCL localisation, and occupancy grid mapping." },
+    { focus: "Control Systems & MATLAB/Simulink",    desc: "PID tuning, state-space models, and Simulink hardware-in-the-loop workflows." },
+    { focus: "Motion Planning & Manipulation",       desc: "MoveIt 2 basics, joint trajectory control, and arm kinematics." },
+    { focus: "Industry Prep & Applications",         desc: "Portfolio projects, Werkstudent applications, and German technical vocabulary." },
+    { focus: "Integration & Capstone Project",       desc: "End-to-end autonomous system demo, documentation, and presentation." },
+    { focus: "Refinement & Networking",              desc: "Code review, project polish, LinkedIn outreach, and mock interviews." },
+  ];
+
+  const TASKS_BY_WEEK = [
+    ["🇩🇪 German — grammar + vocab (90 min)", "💻 C++ practice — LeetCode / modern syntax", "📚 ROS 2 — node lifecycle & colcon build", "📝 Journal update"],
+    ["🇩🇪 German — Anki deck + speaking", "💻 C++ — templates & smart pointers", "🤖 ROS 2 — TF2 transforms & nav2", "🔧 Gazebo sim — spawn robot URDF"],
+    ["🇩🇪 German — technical vocabulary", "💻 C++ — PCL / OpenCV integration", "📡 Sensor fusion — IMU + LiDAR filter", "📝 Sensor data logging & analysis"],
+    ["🇩🇪 German — listening comprehension", "💻 C++ — STL algorithms practice", "🗺️ SLAM — run Cartographer in Gazebo", "📝 Map quality review & tuning notes"],
+    ["🇩🇪 German — conversation practice", "💻 MATLAB — transfer function analysis", "⚙️ Simulink — PID controller design", "🧪 Hardware-in-the-loop test"],
+    ["🇩🇪 German — compound nouns (Robotik)", "💻 C++ — MoveIt 2 trajectory API", "🦾 Kinematics — DH parameters & IK", "📝 Manipulation task demo"],
+    ["🇩🇪 German — cover letter vocabulary", "💻 Portfolio — document one project", "📄 Werkstudent — apply to 3 companies", "🔍 Research 5 target employers"],
+    ["🇩🇪 German — mock interview phrases", "💻 Capstone — integrate all subsystems", "🎥 Demo recording & writeup", "📝 GitHub README finalisation"],
+    ["🇩🇪 German — presentation rehearsal", "💻 Code review & documentation", "🤝 LinkedIn connect — 3 engineers", "📝 Final reflection & next-step planning"],
+  ];
+
+  const RANKS = [
+    { xp: 0,    title: "Student",           lvl: 1  },
+    { xp: 500,  title: "Junior Developer",  lvl: 5  },
+    { xp: 1500, title: "Robotics Engineer", lvl: 15 },
+    { xp: 3000, title: "System Architect",  lvl: 30 },
+    { xp: 5000, title: "Robotics Master",   lvl: 50 },
+  ];
+
+  /* ── State (persisted in localStorage) ── */
+  const STORE_KEY = 'robotracker60_v1';
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return { sel: 1, done: {}, journal: {}, hrs: {} };
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) {}
+  }
+
+  let state = loadState();
+
+  /* ── Helpers ── */
+  function weekFor(d) { return Math.min(8, Math.ceil(d / 7) - 1); }
+  function dayTasks(d) { return TASKS_BY_WEEK[weekFor(d)] || TASKS_BY_WEEK[0]; }
+  function isDayDone(d) { return dayTasks(d).every((_, i) => (state.done[d] || {})[i]); }
+
+  function calcStreak() {
+    let s = 0, d = state.sel;
+    while (d >= 1 && isDayDone(d)) { s++; d--; }
+    return s;
+  }
+
+  function xpAndRank() {
+    let total = 0;
+    for (let d = 1; d <= 60; d++) if (isDayDone(d)) total++;
+    const xp = total * 50;
+    let rank = RANKS[0];
+    for (const r of RANKS) if (xp >= r.xp) rank = r;
+    return { xp, title: rank.title, lvl: Math.max(rank.lvl, Math.floor(xp / 100) + 1), total };
+  }
+
+  /* ── Render ── */
+  function render() {
+    const { xp, title, lvl, total } = xpAndRank();
+    const streak = calcStreak();
+    const pct = Math.round((total / 60) * 100);
+    const totalHrs = Object.values(state.hrs).reduce((a, b) => a + b, 0);
+    const wi = weekFor(state.sel);
+    const wp = WEEK_PLANS[wi];
+
+    /* Header */
+    document.getElementById('hdr-day').textContent    = `Day ${state.sel} / 60`;
+    document.getElementById('hdr-rank').textContent   = title;
+    document.getElementById('hdr-lvl').textContent    = `Lvl ${lvl}`;
+    document.getElementById('hdr-xp').textContent     = xp;
+    document.getElementById('hdr-streak').textContent = `${streak} 🔥`;
+
+    /* Dashboard */
+    document.getElementById('dash-pct').textContent       = `${pct}%`;
+    document.getElementById('dash-bar').style.width       = `${pct}%`;
+    document.getElementById('dash-days').textContent      = `${total} / 60 days completed`;
+    document.getElementById('dash-hrs').textContent       = `${totalHrs} hrs`;
+    document.getElementById('dash-week-badge').textContent = `Week ${wi + 1}`;
+    document.getElementById('dash-week-focus').textContent = wp.focus;
+    document.getElementById('dash-week-desc').textContent  = wp.desc;
+
+    /* Day chips */
+    document.querySelectorAll('.day-chip').forEach((el, i) => {
+      const d = i + 1;
+      el.classList.toggle('selected', d === state.sel);
+      el.classList.toggle('done', isDayDone(d));
+    });
+
+    /* Planner */
+    document.getElementById('plan-day-title').textContent = `Day ${state.sel} tasks`;
+    document.getElementById('plan-streak').textContent    = `${streak} day streak 🔥`;
+    document.getElementById('journal-input').value        = state.journal[state.sel] || '';
+    document.getElementById('input-hrs').value            = state.hrs[state.sel] || 0;
+
+    renderTasks();
+    saveState();
+  }
+
+  function renderTasks() {
+    const tasks = dayTasks(state.sel);
+    const ul    = document.getElementById('task-list');
+    ul.innerHTML = '';
+    const dd = state.done[state.sel] || {};
+
+    tasks.forEach((text, i) => {
+      const li = document.createElement('li');
+      li.className = 'task-item' + (dd[i] ? ' done' : '');
+
+      const cb = document.createElement('input');
+      cb.type    = 'checkbox';
+      cb.checked = !!dd[i];
+      cb.addEventListener('change', () => {
+        if (!state.done[state.sel]) state.done[state.sel] = {};
+        state.done[state.sel][i] = cb.checked;
+        const wasJustCompleted = isDayDone(state.sel);
+        if (wasJustCompleted && typeof confetti === 'function') {
+          confetti({ particleCount: 70, spread: 65, origin: { y: 0.5 } });
         }
+        render();
+      });
 
-        let state = AppStore.get();
-        let chartInstance = null;
+      const sp = document.createElement('span');
+      sp.textContent = text;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initUI();
-            renderChart();
-            updateApp();
-        });
+      li.appendChild(cb);
+      li.appendChild(sp);
+      ul.appendChild(li);
+    });
+  }
 
-        function initUI() {
-            // Theme setup
-            document.documentElement.setAttribute('data-theme', state.theme);
-            const themeBtn = document.getElementById('theme-toggle');
-            themeBtn.innerText = state.theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode';
-            themeBtn.addEventListener('click', () => {
-                state.theme = state.theme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', state.theme);
-                themeBtn.innerText = state.theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode';
-                AppStore.save(state);
-            });
+  /* ── Navigation ── */
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    });
+  });
 
-            // Tabs Switcher
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
-                });
-            });
+  /* ── Build day grid ── */
+  const grid = document.getElementById('days-grid');
+  for (let d = 1; d <= 60; d++) {
+    const el = document.createElement('div');
+    el.className = 'day-chip';
+    el.textContent = `D${d}`;
+    el.addEventListener('click', () => { state.sel = d; render(); });
+    grid.appendChild(el);
+  }
 
-            // Populate Days Grid
-            const daysGrid = document.getElementById('days-grid');
-            daysGrid.innerHTML = '';
-            for (let i = 1; i <= 60; i++) {
-                const chip = document.createElement('div');
-                chip.className = `day-chip ${state.completedDays.includes(i) ? 'completed' : ''}`;
-                chip.innerText = `D${i}`;
-                chip.addEventListener('click', () => {
-                    state.selectedDay = i;
-                    updateApp();
-                });
-                daysGrid.appendChild(chip);
-            }
+  /* ── Save buttons ── */
+  document.getElementById('save-journal-btn').addEventListener('click', () => {
+    state.journal[state.sel] = document.getElementById('journal-input').value;
+    saveState();
+    const btn = document.getElementById('save-journal-btn');
+    btn.textContent = 'Saved ✓';
+    setTimeout(() => btn.textContent = 'Save notes', 1500);
+  });
 
-            // Skills Sliders Binding
-            document.querySelectorAll('.skill-slider').forEach(slider => {
-                const skill = slider.dataset.skill;
-                slider.value = state.skills[skill] || 0;
-                document.getElementById(`val-${skill}`).innerText = `${slider.value}%`;
-                
-                slider.addEventListener('input', (e) => {
-                    state.skills[skill] = parseInt(e.target.value);
-                    document.getElementById(`val-${skill}`).innerText = `${e.target.value}%`;
-                    AppStore.save(state);
-                    renderChart();
-                });
-            });
+  document.getElementById('save-metrics-btn').addEventListener('click', () => {
+    state.hrs[state.sel] = parseFloat(document.getElementById('input-hrs').value) || 0;
+    render();
+    const btn = document.getElementById('save-metrics-btn');
+    btn.textContent = 'Updated ✓';
+    setTimeout(() => btn.textContent = 'Update stats', 1500);
+  });
 
-            // Metrics inputs
-            document.getElementById('save-metrics-btn').addEventListener('click', () => {
-                const hrs = parseFloat(document.getElementById('input-daily-hours').value) || 0;
-                const words = parseInt(document.getElementById('input-daily-german').value) || 0;
-                state.hoursLogged[state.selectedDay] = hrs;
-                state.germanWordsLogged[state.selectedDay] = words;
-                AppStore.save(state);
-                updateApp();
-            });
-
-            // Journal Input
-            document.getElementById('save-journal-btn').addEventListener('click', () => {
-                const text = document.getElementById('daily-journal-input').value;
-                state.journal[state.selectedDay] = text;
-                AppStore.save(state);
-            });
-
-            // LinkedIn Generator
-            document.getElementById('generate-post-btn').addEventListener('click', generateLinkedInPost);
-        }
-
-        function updateApp() {
-            // Header stats
-            const totalCompleted = state.completedDays.length;
-            const xp = totalCompleted * 50;
-            
-            // Calculate Title and Level
-            let title = 'Student';
-            let lvl = Math.floor(xp / 100) + 1;
-            for (let r of RANGES) {
-                if (xp >= r.xpNeeded) title = r.title;
-            }
-
-            document.getElementById('user-xp').innerText = xp;
-            document.getElementById('user-level').innerText = `Lvl ${lvl}`;
-            document.getElementById('user-title').innerText = title;
-            document.getElementById('header-day-title').innerText = `Day ${state.selectedDay} / 60`;
-
-            // Progress Bar
-            const percent = Math.round((totalCompleted / 60) * 100);
-            document.getElementById('overall-progress-fill').style.width = `${percent}%`;
-            document.getElementById('overall-progress-text').innerText = `${percent}% (${totalCompleted} / 60 Days Completed)`;
-
-            // Total Hours and Words
-            const totalHours = Object.values(state.hoursLogged).reduce((a, b) => a + b, 0);
-            const totalWords = Object.values(state.germanWordsLogged).reduce((a, b) => a + b, 0);
-            document.getElementById('total-hours-display').innerText = `${totalHours} hrs`;
-            document.getElementById('german-words-display').innerText = totalWords;
-
-            // Highlight Active Day in Grid
-            const chips = document.querySelectorAll('.day-chip');
-            chips.forEach((chip, index) => {
-                const dayNum = index + 1;
-                chip.classList.toggle('active-day', dayNum === state.selectedDay);
-                chip.classList.toggle('completed', state.completedDays.includes(dayNum));
-            });
-
-            // Load Task List & Values for Active Day
-            document.getElementById('active-day-heading').innerText = `Day ${state.selectedDay} Tasks`;
-            document.getElementById('daily-journal-input').value = state.journal[state.selectedDay] || '';
-            document.getElementById('input-daily-hours').value = state.hoursLogged[state.selectedDay] || 0;
-            document.getElementById('input-daily-german').value = state.germanWordsLogged[state.selectedDay] || 0;
-
-            renderDayChecklist(state.selectedDay);
-            AppStore.save(state);
-        }
-
-        function renderDayChecklist(dayNum) {
-            const taskContainer = document.getElementById('day-task-list');
-            taskContainer.innerHTML = '';
-
-            const defaultTasks = [
-                "🇩🇪 2 Hours German (Grammar / Vocab / Speaking)",
-                "💻 C++ Practice (LeetCode / Modern Syntax)",
-                "🤖 Main Block: ROS 2 Architecture or MATLAB/Simulink",
-                "📝 Implementation Practice / Journal Update"
-            ];
-
-            const isDayCompleted = state.completedDays.includes(dayNum);
-
-            defaultTasks.forEach((taskText, idx) => {
-                const li = document.createElement('li');
-                li.className = 'task-item';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = isDayCompleted;
-                
-                checkbox.addEventListener('change', () => {
-                    if (checkbox.checked) {
-                        if (!state.completedDays.includes(dayNum)) state.completedDays.push(dayNum);
-                        if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 50 });
-                    } else {
-                        state.completedDays = state.completedDays.filter(d => d !== dayNum);
-                    }
-                    updateApp();
-                });
-
-                const label = document.createElement('span');
-                label.innerText = taskText;
-
-                li.appendChild(checkbox);
-                li.appendChild(label);
-                taskContainer.appendChild(li);
-            });
-        }
-
-        function renderChart() {
-            const ctx = document.getElementById('skillsChart').getContext('2d');
-            const data = [
-                state.skills.cpp,
-                state.skills.ros2,
-                state.skills.matlab,
-                state.skills.control,
-                state.skills.german
-            ];
-
-            if (chartInstance) chartInstance.destroy();
-
-            chartInstance = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['C++', 'ROS 2', 'MATLAB/Simulink', 'Control Theory', 'German'],
-                    datasets: [{
-                        label: 'Skill Proficiency (%)',
-                        data: data,
-                        backgroundColor: 'rgba(56, 189, 248, 0.2)',
-                        borderColor: '#38bdf8',
-                        pointBackgroundColor: '#38bdf8'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: { color: 'rgba(255,255,255,0.1)' },
-                            grid: { color: 'rgba(255,255,255,0.1)' },
-                            pointLabels: { color: '#94a3b8' },
-                            ticks: { display: false, max: 100 }
-                        }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        function generateLinkedInPost() {
-            const totalHours = Object.values(state.hoursLogged).reduce((a, b) => a + b, 0);
-            const totalWords = Object.values(state.germanWordsLogged).reduce((a, b) => a + b, 0);
-            const daysDone = state.completedDays.length;
-
-            const postText = `🚀 Milestone Update: 60-Day Robotics & Mechatronics Challenge\n\n` +
-                `I am currently pushing through an intensive 60-day sprint toward becoming an industry-ready Robotics Engineer in Germany! 🇩🇪🤖\n\n` +
-                `📊 Progress Summary So Far:\n` +
-                `• Completed: ${daysDone} / 60 Days (${Math.round((daysDone/60)*100)}% complete)\n` +
-                `• Total Focused Hours: ${totalHours} hrs\n` +
-                `• German Vocabulary Acquired: ${totalWords} words\n` +
-                `• Primary Focus: C++, ROS 2, MATLAB/Simulink & Control Systems\n\n` +
-                `Building consistency every day and applying concepts directly into hands-on simulation projects.\n\n` +
-                `#Robotics #ROS2 #MATLAB #Simulink #Cpp #Mechatronics #Engineering #Automation #Germany`;
-
-            document.getElementById('linkedin-post-output').value = postText;
-        }
-    </script>
+  /* ── Init ── */
+  render();
+</script>
 </body>
 </html>
